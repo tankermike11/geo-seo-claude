@@ -7,3 +7,5 @@ urllib3>=2.6.3,<3.0.0
 validators>=0.22.0,<1.0.0
 flask>=3.0.0,<4.0.0
 rich>=13.0.0,<14.0.0
+# Optional: PDF report generation (used by both geo-report-pdf and market-report-pdf)
+reportlab>=4.0

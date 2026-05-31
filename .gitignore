@@ -23,18 +23,36 @@ env/
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Logs
 *.log
 
-# Output files (generated reports - may contain sensitive client data)
+# GEO output files (generated reports - may contain sensitive client data)
 /GEO-*.md
 /GEO-*.pdf
-*.pdf
 /llms.txt
 /llms-full.txt
 /audit-data*.json
+
+# Marketing output files
+/MARKETING-AUDIT.md
+/MARKETING-REPORT.md
+/MARKETING-REPORT-*.pdf
+/MARKETING-REPORT-*.md
+/COMPETITOR-REPORT.md
+/COPY-SUGGESTIONS.md
+/EMAIL-SEQUENCES.md
+/SOCIAL-CALENDAR.md
+/AD-CAMPAIGNS.md
+/FUNNEL-ANALYSIS.md
+/LANDING-CRO.md
+/LAUNCH-PLAYBOOK.md
+/CLIENT-PROPOSAL.md
+/SEO-AUDIT.md
+/BRAND-VOICE.md
+
+# PDFs (generated)
+*.pdf
 
 # Credentials and secrets (never commit these)
 *.key
@@ -58,6 +76,13 @@ test_output/
 # OS
 Thumbs.db
 .DS_Store
+
+# Node
+node_modules/
+
+# Temp
+*.tmp
+*.bak
 
 # Git worktrees
 .worktrees/

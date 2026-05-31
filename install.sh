@@ -2,44 +2,38 @@
 set -euo pipefail
 
 # ============================================================
-# GEO-SEO Claude Code Skill Installer
-# Installs the GEO-first SEO analysis tool for Claude Code
-# with an isolated Python virtual environment.
+# Unified Installer — GEO-SEO + AI Marketing Suite
 # ============================================================
 
 REPO_URL="https://github.com/zubair-trabzada/geo-seo-claude.git"
 CLAUDE_DIR="${HOME}/.claude"
 SKILLS_DIR="${CLAUDE_DIR}/skills"
 AGENTS_DIR="${CLAUDE_DIR}/agents"
-INSTALL_DIR="${SKILLS_DIR}/geo"
-VENV_DIR="${INSTALL_DIR}/.venv"
+GEO_INSTALL_DIR="${SKILLS_DIR}/geo"
+VENV_DIR="${GEO_INSTALL_DIR}/.venv"
 VENV_PY="${VENV_DIR}/bin/python3"
-# Tilde-form path for patched references inside skill/agent .md files.
-# The tilde is intentionally kept literal — Claude Code's Bash expands
-# it when running the command later. Do NOT replace with $HOME here.
 # shellcheck disable=SC2088
 VENV_MD_PY='~/.claude/skills/geo/.venv/bin/python3'
 TEMP_DIR=$(mktemp -d)
 
-# Detect if running via curl pipe (no interactive input available)
 INTERACTIVE=true
 if [ ! -t 0 ]; then
     INTERACTIVE=false
 fi
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+CYAN='\033[0;36m'
+NC='\033[0m'
 
 print_header() {
     echo ""
-    echo -e "${BLUE}╔══════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║   GEO-SEO Claude Code Skill Installer    ║${NC}"
-    echo -e "${BLUE}║   GEO-First AI Search Optimization       ║${NC}"
-    echo -e "${BLUE}╚══════════════════════════════════════════╝${NC}"
+    echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║   GEO-SEO + AI Marketing Suite — Installer       ║${NC}"
+    echo -e "${CYAN}║   GEO · SEO · Copy · Emails · Social · PDF       ║${NC}"
+    echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
     echo ""
 }
 
@@ -48,13 +42,9 @@ print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
 print_error()   { echo -e "${RED}✗ $1${NC}"; }
 print_info()    { echo -e "${BLUE}→ $1${NC}"; }
 
-cleanup() {
-    rm -rf "$TEMP_DIR"
-}
+cleanup() { rm -rf "$TEMP_DIR"; }
 trap cleanup EXIT
 
-# Cross-platform in-place sed (GNU sed and BSD/macOS sed).
-# Writes a .bak sibling then removes it.
 sed_inplace() {
     local pattern="$1"
     local file="$2"
@@ -64,7 +54,7 @@ sed_inplace() {
 main() {
     print_header
 
-    # ---- Check Prerequisites ----
+    # ---- Prerequisites ----
     print_info "Checking prerequisites..."
 
     if ! command -v git &> /dev/null; then
@@ -97,15 +87,12 @@ main() {
 
     if ! command -v claude &> /dev/null; then
         print_warning "Claude Code CLI not found in PATH."
-        echo "  This tool requires Claude Code to function."
         echo "  Install: npm install -g @anthropic-ai/claude-code"
         echo ""
         if [ "$INTERACTIVE" = true ]; then
             read -p "Continue installation anyway? (y/n): " -n 1 -r
             echo ""
-            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                exit 1
-            fi
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
         else
             print_info "Non-interactive mode — continuing anyway..."
         fi
@@ -113,145 +100,121 @@ main() {
         print_success "Claude Code CLI found"
     fi
 
-    # Detect uv for faster venv/install (optional, falls back to stdlib venv + pip)
     USE_UV=false
     if command -v uv &> /dev/null; then
         USE_UV=true
         print_success "'uv' detected — will use it for a faster install"
     fi
 
-    # ---- Create Directories ----
-    print_info "Creating directories..."
-
-    mkdir -p "$SKILLS_DIR" "$AGENTS_DIR" "$INSTALL_DIR"
-    mkdir -p "$INSTALL_DIR/scripts" "$INSTALL_DIR/schema" "$INSTALL_DIR/hooks"
-
-    print_success "Directory structure created"
-
-    # ---- Resolve source directory (local checkout or clone) ----
-    print_info "Fetching GEO-SEO skill files..."
-
+    # ---- Resolve source ----
     SCRIPT_DIR=""
     if [ -n "${BASH_SOURCE[0]:-}" ] && [ "${BASH_SOURCE[0]}" != "bash" ]; then
         SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || true
     fi
 
     if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/geo/SKILL.md" ]; then
-        print_info "Installing from local directory..."
+        print_info "Installing from local directory: $SCRIPT_DIR"
         SOURCE_DIR="$SCRIPT_DIR"
     else
         print_info "Cloning from repository..."
         git clone --depth 1 "$REPO_URL" "$TEMP_DIR/repo" || {
-            print_error "Failed to clone repository. Check your internet connection."
+            print_error "Failed to clone repository."
             exit 1
         }
         SOURCE_DIR="${TEMP_DIR}/repo"
     fi
 
-    # ---- Install Main Skill ----
-    print_info "Installing main GEO skill..."
-    cp -r "$SOURCE_DIR/geo/"* "$INSTALL_DIR/"
-    print_success "Main skill installed → ${INSTALL_DIR}/"
+    # ---- Directories ----
+    print_info "Creating directories..."
+    mkdir -p "$SKILLS_DIR" "$AGENTS_DIR" "$GEO_INSTALL_DIR"
+    mkdir -p "$GEO_INSTALL_DIR/scripts" "$GEO_INSTALL_DIR/schema" "$GEO_INSTALL_DIR/hooks"
+    print_success "Directory structure created"
 
-    # ---- Install Sub-Skills ----
-    print_info "Installing sub-skills..."
-    SKILL_COUNT=0
-    for skill_dir in "$SOURCE_DIR/skills"/*/; do
+    # ================================================================
+    # GEO-SEO SUITE
+    # ================================================================
+    echo ""
+    echo -e "${BLUE}━━━ Installing GEO-SEO Suite ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    print_info "Installing main GEO skill..."
+    cp -r "$SOURCE_DIR/geo/"* "$GEO_INSTALL_DIR/"
+    print_success "Main skill → ${GEO_INSTALL_DIR}/"
+
+    print_info "Installing GEO sub-skills..."
+    GEO_SKILL_COUNT=0
+    for skill_dir in "$SOURCE_DIR/skills"/geo-*/; do
         if [ -d "$skill_dir" ]; then
             skill_name=$(basename "$skill_dir")
             target_dir="${SKILLS_DIR}/${skill_name}"
             mkdir -p "$target_dir"
             cp -r "$skill_dir"* "$target_dir/"
-            SKILL_COUNT=$((SKILL_COUNT + 1))
+            GEO_SKILL_COUNT=$((GEO_SKILL_COUNT + 1))
             print_success "  ${skill_name}"
         fi
     done
-    echo "  → ${SKILL_COUNT} sub-skills installed"
+    echo "  → ${GEO_SKILL_COUNT} GEO sub-skills installed"
 
-    # ---- Install Agents ----
-    print_info "Installing subagents..."
-    AGENT_COUNT=0
-    for agent_file in "$SOURCE_DIR/agents/"*.md; do
+    print_info "Installing GEO subagents..."
+    GEO_AGENT_COUNT=0
+    for agent_file in "$SOURCE_DIR/agents/"geo-*.md; do
         if [ -f "$agent_file" ]; then
             cp "$agent_file" "$AGENTS_DIR/"
-            AGENT_COUNT=$((AGENT_COUNT + 1))
+            GEO_AGENT_COUNT=$((GEO_AGENT_COUNT + 1))
             print_success "  $(basename "$agent_file")"
         fi
     done
-    echo "  → ${AGENT_COUNT} subagents installed"
+    echo "  → ${GEO_AGENT_COUNT} GEO subagents installed"
 
-    # ---- Install Scripts ----
-    print_info "Installing utility scripts..."
     if [ -d "$SOURCE_DIR/scripts" ]; then
-        cp -r "$SOURCE_DIR/scripts/"* "$INSTALL_DIR/scripts/"
-        print_success "Scripts installed → ${INSTALL_DIR}/scripts/"
+        print_info "Installing GEO scripts..."
+        cp -r "$SOURCE_DIR/scripts/"* "$GEO_INSTALL_DIR/scripts/"
+        print_success "GEO scripts → ${GEO_INSTALL_DIR}/scripts/"
     fi
 
-    # ---- Install Schema Templates ----
-    print_info "Installing schema templates..."
     if [ -d "$SOURCE_DIR/schema" ]; then
-        cp -r "$SOURCE_DIR/schema/"* "$INSTALL_DIR/schema/"
-        print_success "Schema templates installed → ${INSTALL_DIR}/schema/"
+        print_info "Installing GEO schema templates..."
+        cp -r "$SOURCE_DIR/schema/"* "$GEO_INSTALL_DIR/schema/"
+        print_success "Schema templates → ${GEO_INSTALL_DIR}/schema/"
     fi
 
-    # ---- Install Hooks ----
     if [ -d "$SOURCE_DIR/hooks" ] && [ "$(ls -A "$SOURCE_DIR/hooks" 2>/dev/null)" ]; then
-        print_info "Installing hooks..."
-        cp -r "$SOURCE_DIR/hooks/"* "$INSTALL_DIR/hooks/"
-        chmod +x "$INSTALL_DIR/hooks/"* 2>/dev/null || true
-        print_success "Hooks installed → ${INSTALL_DIR}/hooks/"
+        print_info "Installing GEO hooks..."
+        cp -r "$SOURCE_DIR/hooks/"* "$GEO_INSTALL_DIR/hooks/"
+        chmod +x "$GEO_INSTALL_DIR/hooks/"* 2>/dev/null || true
+        print_success "Hooks → ${GEO_INSTALL_DIR}/hooks/"
     fi
 
-    # ---- Create Virtual Environment ----
+    # ---- GEO venv ----
     print_info "Creating isolated Python environment → ${VENV_DIR}"
-
-    # If an old venv is lying around from a previous install, replace it.
     rm -rf "$VENV_DIR"
 
     if [ "$USE_UV" = true ]; then
-        uv venv "$VENV_DIR" --python "$PYTHON_CMD" --quiet || {
-            print_error "uv venv creation failed."
-            exit 1
-        }
+        uv venv "$VENV_DIR" --python "$PYTHON_CMD" --quiet || { print_error "uv venv failed."; exit 1; }
     else
         if ! $PYTHON_CMD -m venv "$VENV_DIR" 2>/dev/null; then
             print_error "Failed to create virtual environment."
-            echo ""
-            echo "  Your Python may be missing the 'venv' module. Try one of:"
-            echo "    • Debian/Ubuntu:  sudo apt install python3-venv"
-            echo "    • Fedora/RHEL:    sudo dnf install python3-virtualenv"
-            echo "    • Install 'uv':   https://docs.astral.sh/uv/  (no system packages needed)"
+            echo "  Debian/Ubuntu: sudo apt install python3-venv"
+            echo "  Or install uv: https://docs.astral.sh/uv/"
             exit 1
         fi
     fi
     print_success "Virtual environment created"
 
-    # ---- Install Python Dependencies into the venv ----
-    print_info "Installing Python dependencies into venv..."
-
+    print_info "Installing Python dependencies..."
     if [ ! -f "$SOURCE_DIR/requirements.txt" ]; then
-        print_warning "requirements.txt missing — skipping dependency install."
+        print_warning "requirements.txt missing — skipping."
     elif [ "$USE_UV" = true ]; then
-        uv pip install --python "$VENV_PY" -r "$SOURCE_DIR/requirements.txt" --quiet || {
-            print_error "Failed to install dependencies via uv."
-            exit 1
-        }
+        uv pip install --python "$VENV_PY" -r "$SOURCE_DIR/requirements.txt" --quiet || { print_error "Dependency install failed."; exit 1; }
     else
         "$VENV_PY" -m pip install --upgrade pip --quiet
-        "$VENV_PY" -m pip install -r "$SOURCE_DIR/requirements.txt" --quiet || {
-            print_error "Failed to install dependencies."
-            exit 1
-        }
+        "$VENV_PY" -m pip install -r "$SOURCE_DIR/requirements.txt" --quiet || { print_error "Dependency install failed."; exit 1; }
     fi
-    print_success "Dependencies installed (isolated — nothing on system Python)"
+    print_success "Dependencies installed (isolated venv — system Python untouched)"
+    cp "$SOURCE_DIR/requirements.txt" "$GEO_INSTALL_DIR/" 2>/dev/null || true
 
-    # Keep a copy of requirements.txt next to the venv for reference.
-    cp "$SOURCE_DIR/requirements.txt" "$INSTALL_DIR/" 2>/dev/null || true
-
-    # ---- Rewrite script shebangs to the venv interpreter ----
     print_info "Pinning script shebangs to venv interpreter..."
     SHEBANG_COUNT=0
-    for f in "$INSTALL_DIR/scripts/"*.py; do
+    for f in "$GEO_INSTALL_DIR/scripts/"*.py; do
         [ -f "$f" ] || continue
         sed_inplace "1s|^#!.*|#!${VENV_PY}|" "$f"
         chmod +x "$f"
@@ -259,23 +222,15 @@ main() {
     done
     print_success "${SHEBANG_COUNT} script(s) pinned to venv"
 
-    # ---- Patch skill & agent markdown references ----
-    # Strategy:
-    #   1. "python3 ~/.claude/skills/geo/scripts/"  →  "~/.claude/skills/geo/scripts/"
-    #      (scripts now self-execute via their shebang)
-    #   2. bare "python3 -c " / "python3 -m "  →  "<venv>/python3 -c " / " -m "
-    #      (inline snippets still need the venv interpreter for requests/etc.)
     print_info "Rewriting skill & agent references to use the venv..."
-
     patch_md() {
         local f="$1"
         sed_inplace 's|python3 ~/\.claude/skills/geo/scripts/|~/.claude/skills/geo/scripts/|g' "$f"
         sed_inplace "s|python3 -c |${VENV_MD_PY} -c |g" "$f"
         sed_inplace "s|python3 -m |${VENV_MD_PY} -m |g" "$f"
     }
-
     PATCH_COUNT=0
-    for f in "$INSTALL_DIR/SKILL.md" "$SKILLS_DIR"/geo-*/SKILL.md "$AGENTS_DIR"/geo-*.md; do
+    for f in "$GEO_INSTALL_DIR/SKILL.md" "$SKILLS_DIR"/geo-*/SKILL.md "$AGENTS_DIR"/geo-*.md; do
         if [ -f "$f" ]; then
             patch_md "$f"
             PATCH_COUNT=$((PATCH_COUNT + 1))
@@ -283,7 +238,71 @@ main() {
     done
     print_success "${PATCH_COUNT} markdown file(s) rewritten"
 
-    # ---- Optional: Install Playwright browsers ----
+    # ================================================================
+    # AI MARKETING SUITE
+    # ================================================================
+    echo ""
+    echo -e "${BLUE}━━━ Installing AI Marketing Suite ━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    MARKET_INSTALL_DIR="${SKILLS_DIR}/market"
+    mkdir -p "$MARKET_INSTALL_DIR/scripts" "$MARKET_INSTALL_DIR/templates"
+
+    if [ -f "$SOURCE_DIR/market/SKILL.md" ]; then
+        cp "$SOURCE_DIR/market/SKILL.md" "$MARKET_INSTALL_DIR/SKILL.md"
+        print_success "Main market skill installed"
+    else
+        print_warning "market/SKILL.md not found — skipping"
+    fi
+
+    print_info "Installing marketing sub-skills..."
+    MARKET_SKILL_COUNT=0
+    for skill_dir in "$SOURCE_DIR/skills"/market-*/; do
+        if [ -d "$skill_dir" ]; then
+            skill_name=$(basename "$skill_dir")
+            target_dir="${SKILLS_DIR}/${skill_name}"
+            mkdir -p "$target_dir"
+            cp -r "$skill_dir"* "$target_dir/"
+            MARKET_SKILL_COUNT=$((MARKET_SKILL_COUNT + 1))
+            print_success "  ${skill_name}"
+        fi
+    done
+    echo "  → ${MARKET_SKILL_COUNT} marketing sub-skills installed"
+
+    print_info "Installing marketing subagents..."
+    MARKET_AGENT_COUNT=0
+    for agent_file in "$SOURCE_DIR/agents/"market-*.md; do
+        if [ -f "$agent_file" ]; then
+            cp "$agent_file" "$AGENTS_DIR/"
+            MARKET_AGENT_COUNT=$((MARKET_AGENT_COUNT + 1))
+            print_success "  $(basename "$agent_file")"
+        fi
+    done
+    echo "  → ${MARKET_AGENT_COUNT} marketing subagents installed"
+
+    if [ -d "$SOURCE_DIR/market/scripts" ]; then
+        print_info "Installing marketing scripts..."
+        cp -r "$SOURCE_DIR/market/scripts/"* "$MARKET_INSTALL_DIR/scripts/"
+        chmod +x "$MARKET_INSTALL_DIR/scripts/"*.py 2>/dev/null || true
+        print_success "Marketing scripts → ${MARKET_INSTALL_DIR}/scripts/"
+    fi
+
+    if [ -d "$SOURCE_DIR/market/templates" ]; then
+        print_info "Installing marketing templates..."
+        cp -r "$SOURCE_DIR/market/templates/"* "$MARKET_INSTALL_DIR/templates/"
+        print_success "Templates → ${MARKET_INSTALL_DIR}/templates/"
+    fi
+
+    # Check reportlab for PDF reports
+    if "$VENV_PY" -c "import reportlab" 2>/dev/null; then
+        print_success "reportlab available — PDF reports ready"
+    else
+        print_warning "reportlab not installed — PDF reports will be unavailable"
+        echo "  Install: ${VENV_PY} -m pip install reportlab"
+    fi
+
+    # ================================================================
+    # OPTIONAL: Playwright
+    # ================================================================
     if [ "$INTERACTIVE" = true ]; then
         echo ""
         read -p "Install Playwright browsers for screenshots? (y/n): " -n 1 -r
@@ -293,7 +312,7 @@ main() {
             if "$VENV_PY" -m playwright install chromium 2>/dev/null; then
                 print_success "Playwright Chromium installed"
             else
-                print_warning "Playwright install failed — screenshots won't be available."
+                print_warning "Playwright install failed — screenshots unavailable."
                 echo "  Retry: ${VENV_PY} -m playwright install chromium"
             fi
         fi
@@ -302,75 +321,59 @@ main() {
         echo "    ${VENV_PY} -m playwright install chromium"
     fi
 
-    # ---- Verify Installation ----
+    # ================================================================
+    # VERIFY
+    # ================================================================
     echo ""
     print_info "Verifying installation..."
     VERIFY_OK=true
-
     verify() {
-        local label="$1"
-        shift
-        if "$@"; then
-            print_success "$label"
-        else
-            print_error "$label missing"
-            VERIFY_OK=false
-        fi
+        local label="$1"; shift
+        if "$@"; then print_success "$label"
+        else print_error "$label missing"; VERIFY_OK=false; fi
     }
 
-    # Count agent files via glob (no ls parsing).
     agent_count=0
-    for f in "$AGENTS_DIR"/geo-*.md; do
+    for f in "$AGENTS_DIR"/geo-*.md "$AGENTS_DIR"/market-*.md; do
         [ -f "$f" ] && agent_count=$((agent_count + 1))
     done
 
-    verify "Main skill file"       test -f "$INSTALL_DIR/SKILL.md"
-    verify "Sub-skills directory"  test -d "$SKILLS_DIR/geo-audit"
-    verify "Agent files"           test "$agent_count" -gt 0
-    verify "Utility scripts"       test -d "$INSTALL_DIR/scripts"
-    verify "Schema templates"      test -d "$INSTALL_DIR/schema"
-    verify "Venv interpreter"      test -x "$VENV_PY"
+    verify "GEO main skill"           test -f "$GEO_INSTALL_DIR/SKILL.md"
+    verify "GEO sub-skills"           test -d "${SKILLS_DIR}/geo-audit"
+    verify "Marketing main skill"     test -f "$MARKET_INSTALL_DIR/SKILL.md"
+    verify "Marketing sub-skills"     test -d "${SKILLS_DIR}/market-audit"
+    verify "Subagents"                test "$agent_count" -gt 0
+    verify "Venv interpreter"         test -x "$VENV_PY"
 
-    if [ "$VERIFY_OK" = false ]; then
-        echo ""
-        print_warning "One or more files are missing. The install may be incomplete."
-    fi
+    [ "$VERIFY_OK" = false ] && print_warning "One or more files are missing. Install may be incomplete."
 
-    # ---- Print Summary ----
+    # ================================================================
+    # SUMMARY
+    # ================================================================
     echo ""
-    echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║        Installation Complete!             ║${NC}"
-    echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
+    echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║           Installation Complete!                  ║${NC}"
+    echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo "  Installed to: ${INSTALL_DIR}"
-    echo "  Venv:         ${VENV_DIR}"
-    echo "  Skills:       ${SKILL_COUNT} sub-skills"
-    echo "  Agents:       ${AGENT_COUNT} subagents"
+    echo "  GEO skills:        ${GEO_SKILL_COUNT}"
+    echo "  Marketing skills:  ${MARKET_SKILL_COUNT}"
+    echo "  Subagents:         ${agent_count}"
+    echo "  Venv:              ${VENV_DIR}"
     echo ""
-    echo -e "${BLUE}Quick Start:${NC}"
-    echo "  Open Claude Code and try:"
+    echo -e "${CYAN}GEO-SEO Commands:${NC}"
+    echo "  /geo audit <url>       Full GEO + SEO audit"
+    echo "  /geo quick <url>       60-second visibility snapshot"
+    echo "  /geo report <url>      Client-ready GEO report"
+    echo "  /geo report-pdf        Generate PDF report"
     echo ""
-    echo "    /geo audit https://example.com"
-    echo "    /geo quick https://example.com"
-    echo "    /geo citability https://example.com/blog/article"
-    echo "    /geo crawlers https://example.com"
-    echo "    /geo report https://example.com"
+    echo -e "${CYAN}Marketing Commands:${NC}"
+    echo "  /market audit <url>    Full marketing audit"
+    echo "  /market copy <url>     Generate optimized copy"
+    echo "  /market emails <topic> Email sequences"
+    echo "  /market social <topic> 30-day social calendar"
+    echo "  /market report-pdf <url> PDF marketing report"
     echo ""
-    echo -e "${BLUE}Available Commands:${NC}"
-    echo "    /geo audit <url>      Full GEO + SEO audit"
-    echo "    /geo quick <url>      60-second visibility snapshot"
-    echo "    /geo citability <url> AI citation readiness score"
-    echo "    /geo crawlers <url>   AI crawler access check"
-    echo "    /geo llmstxt <url>    Analyze/generate llms.txt"
-    echo "    /geo brands <url>     Brand mention scan"
-    echo "    /geo platforms <url>  Platform-specific optimization"
-    echo "    /geo schema <url>     Structured data analysis"
-    echo "    /geo technical <url>  Technical SEO audit"
-    echo "    /geo content <url>    Content quality & E-E-A-T"
-    echo "    /geo report <url>     Client-ready GEO report"
-    echo "    /geo report-pdf       Generate PDF report from audit data"
-    echo ""
-    echo "  Documentation: https://github.com/zubair-trabzada/geo-seo-claude"
+    echo "  Start a new Claude Code session to use the skills."
     echo ""
 }
 
