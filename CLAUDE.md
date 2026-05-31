@@ -52,8 +52,8 @@ scoring lenses and branded output.
 
 ### What Has Been Done
 - [x] Forked both repos into single workspace — merged into single directory, unified install.sh
-- [ ] Installed and ran `/geo audit https://www.masaaccess.com` baseline
-- [ ] Installed and ran `/market audit https://www.masaaccess.com` baseline
+- [x] Installed and ran `/geo audit https://www.masaaccess.com` baseline — GEO score: **49/100** (Poor); saved to `/examples/masa-baseline/GEO-AUDIT-REPORT.md`
+- [x] Installed and ran `/market audit https://www.masaaccess.com` baseline — Marketing score: **59/100** (C); saved to `/examples/masa-baseline/MARKETING-AUDIT.md`
 - [ ] Reviewed baseline reports and catalogued scoring gaps
 
 ### Active Workstreams (in priority order)
@@ -305,6 +305,22 @@ pytest tests/ -v
 - [ ] 8. Add pytest tests for all scripts
 - [x] 9. Rebrand PDF reports with MASA color system — Horizon header panel, Tide section bars, MASA footer, Harbor tint rows applied to both `generate_pdf_report.py` (GEO) and `generate_marketing_pdf.py` (marketing)
 - [ ] 10. Run final unified `/site audit masaaccess.com` and compare to baseline
+
+---
+
+## Baseline Audit Scores (2026-05-31)
+
+| Audit | Score | Grade | Report |
+|-------|-------|-------|--------|
+| GEO + SEO (geo-audit) | 49/100 | Poor | `/examples/masa-baseline/GEO-AUDIT-REPORT.md` |
+| Marketing (market-audit) | 59/100 | C | `/examples/masa-baseline/MARKETING-AUDIT.md` |
+
+Top cross-cutting gaps (appear in both audits):
+- No llms.txt — Critical in GEO, Strategic in Marketing
+- No schema/structured data — Critical in GEO, noted in Marketing SEO
+- No employer/HR landing page — B2B2C gap in both
+- No online enrollment path — conversion blocker (Marketing)
+- E-E-A-T weak: organizational authorship only, no leadership bios (both audits)
 
 ---
 
