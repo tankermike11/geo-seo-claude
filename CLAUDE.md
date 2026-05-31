@@ -51,7 +51,7 @@ scoring lenses and branded output.
 ```
 
 ### What Has Been Done
-- [ ] Forked both repos into single workspace ← **START HERE if not yet done**
+- [x] Forked both repos into single workspace — merged into single directory, unified install.sh
 - [ ] Installed and ran `/geo audit https://www.masaaccess.com` baseline
 - [ ] Installed and ran `/market audit https://www.masaaccess.com` baseline
 - [ ] Reviewed baseline reports and catalogued scoring gaps
@@ -251,8 +251,10 @@ Track discovered issues here as you work:
 | Issue | Location | Priority | Status |
 |-------|----------|----------|--------|
 | `ai-marketing-claude` Python scripts have no error handling | `/scripts/analyze_page.py` etc. | High | Open |
-| No unified install.sh for merged repo | `/install.sh` | High | Open |
-| PDF reports use plain ReportLab styling — not MASA branded | `/scripts/generate_pdf_report.py` | Medium | Open |
+| No unified install.sh for merged repo | `/install.sh` | High | **Closed** — unified installer in place |
+| PDF reports use plain ReportLab styling — not MASA branded | `/scripts/generate_pdf_report.py`, `/scripts/generate_marketing_pdf.py` | Medium | **Closed** — MASA palette, Horizon header panel, Tide section bars, MASA footer applied to both |
+| `generate_marketing_pdf.py` absent from scripts | `/scripts/` | Medium | **Closed** — added and MASA-branded |
+| `generate_pdf_report.py` was marketing template, not GEO | `/scripts/generate_pdf_report.py` | Medium | **Closed** — rewritten as GEO-specific with MASA branding |
 | No test suite for `ai-marketing-claude` scripts | `/tests/` | Medium | Open |
 | `/geo prospect` data stored in `~/.geo-prospects/` — no masaaccess.com pipeline seeded | `~/.geo-prospects/` | Low | Open |
 | Schema templates are generic — need MedicalOrganization and Membership types | `/schema/` | Medium | Open |
@@ -293,17 +295,17 @@ pytest tests/ -v
 
 ## Next Actions (in order)
 
-- [ ] 1. Fork both repos; create single working directory
+- [x] 1. Fork both repos; create single working directory
 - [ ] 2. Run baseline audits on masaaccess.com from both tools; save raw outputs to `/examples/masa-baseline/`
 - [ ] 3. Create `/site/SKILL.md` — unified command router that calls both orchestrators
-- [ ] 4. Merge `install.sh` scripts into one
+- [x] 4. Merge `install.sh` scripts into one
 - [ ] 5. Add MASA-specific scoring adjustments to GEO audit sub-skill
 - [ ] 6. Add `MedicalOrganization` and `Membership` schema templates to `/schema/`
 - [ ] 7. Harden Python scripts with error handling (start with `analyze_page.py` and `citability_scorer.py`)
 - [ ] 8. Add pytest tests for all scripts
-- [ ] 9. Rebrand PDF reports with MASA color system
+- [x] 9. Rebrand PDF reports with MASA color system — Horizon header panel, Tide section bars, MASA footer, Harbor tint rows applied to both `generate_pdf_report.py` (GEO) and `generate_marketing_pdf.py` (marketing)
 - [ ] 10. Run final unified `/site audit masaaccess.com` and compare to baseline
 
 ---
 
-*Last updated: May 2026 | Maintained by: Mike @ MASA Global*
+*Last updated: 2026-05-31 | Maintained by: Mike @ MASA Global*
